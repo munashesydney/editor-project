@@ -51,6 +51,7 @@ interface CanvasStore {
   activeTool: "select" | "image" | "text" | "shape";
   activeShapeKind: ShapeKind;
   customPathData: string;
+  activePanel: "text" | "shape" | null;
   messages: AIMessage[];
 
   addElement: (type: ElementType, position?: { x: number; y: number }) => void;
@@ -67,6 +68,7 @@ interface CanvasStore {
   setActiveTool: (tool: "select" | "image" | "text" | "shape") => void;
   setActiveShapeKind: (kind: ShapeKind) => void;
   setCustomPathData: (path: string) => void;
+  setActivePanel: (panel: "text" | "shape" | null) => void;
   addMessage: (role: "user" | "assistant", content: string) => void;
 }
 
@@ -76,6 +78,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   activeTool: "select",
   activeShapeKind: "rectangle",
   customPathData: "",
+  activePanel: null,
   messages: SEED_MESSAGES,
 
   addElement: (type, position) => {
@@ -136,12 +139,14 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     set((state) => ({
       elements: state.elements.filter((el) => el.id !== id),
       selectedId: state.selectedId === id ? null : state.selectedId,
+      activePanel: state.selectedId === id ? null : state.activePanel,
     }));
   },
 
   selectElement: (id) => {
     set((state) => ({
       selectedId: id,
+      activePanel: state.selectedId !== id ? null : state.activePanel,
       elements: state.elements.map((el) => ({
         ...el,
         selected: el.id === id,
@@ -152,6 +157,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   deselectAll: () => {
     set((state) => ({
       selectedId: null,
+      activePanel: null,
       elements: state.elements.map((el) => ({ ...el, selected: false })),
     }));
   },
@@ -166,6 +172,10 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
   setCustomPathData: (path) => {
     set({ customPathData: path });
+  },
+
+  setActivePanel: (panel) => {
+    set({ activePanel: panel });
   },
 
   addMessage: (role, content) => {

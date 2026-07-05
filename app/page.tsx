@@ -12,16 +12,19 @@ export default function Home() {
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
 
   return (
-    <div className="h-screen overflow-hidden bg-zinc-100">
+    <div className="h-screen flex flex-col overflow-hidden bg-zinc-100">
       <Navbar chatPanelOpen={aiPanelOpen} />
 
-      {/* Main content */}
-      <main className="pt-12 h-full flex items-center justify-center relative">
+      {/* Main layout wrapper */}
+      <div className="flex-1 flex flex-row overflow-hidden pt-12 relative">
+
+        {/* Main content */}
+        <main className="flex-1 h-full flex relative">
         <Canvas />
 
         {/* Toolbar — centered */}
         <div
-          className="fixed bottom-6 z-30"
+          className="absolute bottom-6 z-30"
           style={{
             left: "50%",
             transform: "translateX(-50%)",
@@ -32,10 +35,11 @@ export default function Home() {
             aiPanelOpen={aiPanelOpen}
           />
         </div>
-      </main>
+        </main>
 
-      {/* AI Panel */}
-      <AIChatPanel open={aiPanelOpen} />
+        {/* AI Panel */}
+        <AIChatPanel open={aiPanelOpen} />
+      </div>
     </div>
   );
 }

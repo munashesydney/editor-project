@@ -6,6 +6,7 @@ import { useCanvasStore } from "../../lib/store/canvas-store";
 import { DraggableElement } from "./CanvasElement";
 import { TextEditorSheet } from "./TextEditorSheet";
 import { ShapeEditorSheet } from "./ShapeEditorSheet";
+import { FloatingToolbar } from "./FloatingToolbar";
 import { DesignSheet } from "../layout/DesignSheet";
 import { HelpCircle } from "lucide-react";
 
@@ -21,6 +22,7 @@ export function Canvas() {
     elements,
     selectedId,
     activeTool,
+    activePanel,
     selectElement,
     deselectAll,
     updateElement,
@@ -102,12 +104,15 @@ export function Canvas() {
     };
 
   return (
-    <>
+    <div className="flex-1 w-full h-full flex flex-row overflow-hidden bg-zinc-100">
+      <TextEditorSheet open={activePanel === "text"} />
+      <ShapeEditorSheet open={activePanel === "shape"} />
+
       <div 
         ref={containerRef} 
-        className="flex-1 w-full h-full flex items-center justify-center overflow-hidden"
+        className="flex-1 h-full flex items-center justify-center relative overflow-hidden"
       >
-        <div style={{ transform: `scale(${scale})`, transformOrigin: "center" }}>
+        <div className="relative" style={{ transform: `scale(${scale})`, transformOrigin: "center" }}>
           <DesignSheet
             className="relative"
             style={{
@@ -143,11 +148,10 @@ export function Canvas() {
               )}
             </div>
           </DesignSheet>
+          
+          <FloatingToolbar scale={scale} />
         </div>
       </div>
-
-      <TextEditorSheet />
-      <ShapeEditorSheet />
-    </>
+    </div>
   );
 }

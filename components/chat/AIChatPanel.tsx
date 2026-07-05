@@ -68,7 +68,12 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
   };
 
   return (
-    <SidePanel open={open} title="Assistant">
+    <SidePanel 
+      open={open} 
+      title="Assistant"
+      variant="floating"
+      position="right"
+    >
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3 min-w-0">
         {messages.map((msg) => (
