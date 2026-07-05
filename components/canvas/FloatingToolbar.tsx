@@ -1,16 +1,29 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useCanvasStore } from "../../lib/store/canvas-store";
 import { cn } from "../../lib/utils";
-import { Type, PaintBucket, Trash2, MoreHorizontal, ArrowLeftRight } from "lucide-react";
+import { Type, PaintBucket, Trash2, MoreHorizontal, ArrowLeftRight, ArrowUpToLine, ArrowDownToLine, ArrowUp, ArrowDown } from "lucide-react";
 
 interface FloatingToolbarProps {
   scale: number;
 }
 
 export function FloatingToolbar({ scale }: FloatingToolbarProps) {
-  const { elements, selectedId, panelPosition, setPanelPosition, setActivePanel, deleteElement } = useCanvasStore();
+  const { elements, selectedId, panelPosition, setPanelPosition, setActivePanel, deleteElement, reorderElement } = useCanvasStore();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const selectedElement = elements.find((el) => el.id === selectedId);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
 
   if (!selectedElement) return null;
 
@@ -72,10 +85,49 @@ export function FloatingToolbar({ scale }: FloatingToolbarProps) {
         <ArrowLeftRight className="w-4 h-4" />
       </button>
 
-      {/* Placeholder for more options */}
-      <button className="p-2 hover:bg-zinc-100 rounded-md transition-colors text-zinc-700" title="More">
-        <MoreHorizontal className="w-4 h-4" />
-      </button>
+      {/* More Options Menu */}
+      <div className="relative" ref={menuRef}>
+        <button 
+          onClick={() => setMenuOpen(!menuOpen)}
+          className={cn(
+            "p-2 rounded-md transition-colors text-zinc-700",
+            menuOpen ? "bg-zinc-100" : "hover:bg-zinc-100"
+          )} 
+          title="More"
+        >
+          <MoreHorizontal className="w-4 h-4" />
+        </button>
+
+        {menuOpen && (
+          <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-zinc-200 rounded-lg shadow-xl overflow-hidden py-1">
+            <button
+              onClick={() => { reorderElement(selectedId!, "up"); setMenuOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 text-left"
+            >
+              <ArrowUp className="w-4 h-4 text-zinc-400" /> Bring Forward
+            </button>
+            <button
+              onClick={() => { reorderElement(selectedId!, "down"); setMenuOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 text-left"
+            >
+              <ArrowDown className="w-4 h-4 text-zinc-400" /> Send Backward
+            </button>
+            <div className="h-px w-full bg-zinc-100 my-1" />
+            <button
+              onClick={() => { reorderElement(selectedId!, "front"); setMenuOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 text-left"
+            >
+              <ArrowUpToLine className="w-4 h-4 text-zinc-400" /> Bring to Front
+            </button>
+            <button
+              onClick={() => { reorderElement(selectedId!, "back"); setMenuOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 text-left"
+            >
+              <ArrowDownToLine className="w-4 h-4 text-zinc-400" /> Send to Back
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

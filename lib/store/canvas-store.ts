@@ -78,6 +78,7 @@ interface CanvasStore {
   setActivePanel: (panel: "text" | "shape" | null) => void;
   setPanelPosition: (position: "left" | "right") => void;
   setActiveSnapLines: (lines: SnapLine[]) => void;
+  reorderElement: (id: string, action: "up" | "down" | "front" | "back") => void;
   addMessage: (role: "user" | "assistant", content: string) => void;
 }
 
@@ -195,6 +196,28 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
   setActiveSnapLines: (lines) => {
     set({ activeSnapLines: lines });
+  },
+
+  reorderElement: (id, action) => {
+    set((state) => {
+      const idx = state.elements.findIndex((el) => el.id === id);
+      if (idx === -1) return state;
+
+      const newElements = [...state.elements];
+      const element = newElements.splice(idx, 1)[0];
+
+      if (action === "up") {
+        newElements.splice(Math.min(idx + 1, newElements.length), 0, element);
+      } else if (action === "down") {
+        newElements.splice(Math.max(idx - 1, 0), 0, element);
+      } else if (action === "front") {
+        newElements.push(element);
+      } else if (action === "back") {
+        newElements.unshift(element);
+      }
+
+      return { elements: newElements };
+    });
   },
 
   addMessage: (role, content) => {
