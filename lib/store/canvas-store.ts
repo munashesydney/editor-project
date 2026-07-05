@@ -52,6 +52,7 @@ interface CanvasStore {
   activeShapeKind: ShapeKind;
   customPathData: string;
   activePanel: "text" | "shape" | null;
+  panelPosition: "left" | "right";
   messages: AIMessage[];
 
   addElement: (type: ElementType, position?: { x: number; y: number }) => void;
@@ -69,6 +70,7 @@ interface CanvasStore {
   setActiveShapeKind: (kind: ShapeKind) => void;
   setCustomPathData: (path: string) => void;
   setActivePanel: (panel: "text" | "shape" | null) => void;
+  setPanelPosition: (position: "left" | "right") => void;
   addMessage: (role: "user" | "assistant", content: string) => void;
 }
 
@@ -79,6 +81,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   activeShapeKind: "rectangle",
   customPathData: "",
   activePanel: null,
+  panelPosition: "left",
   messages: SEED_MESSAGES,
 
   addElement: (type, position) => {
@@ -176,6 +179,10 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
   setActivePanel: (panel) => {
     set({ activePanel: panel });
+  },
+
+  setPanelPosition: (position) => {
+    set({ panelPosition: position });
   },
 
   addMessage: (role, content) => {

@@ -17,7 +17,7 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { messages, addMessage, addElements } = useCanvasStore();
+  const { messages, addMessage, addElements, panelPosition } = useCanvasStore();
 
   useEffect(() => {
     if (open) {
@@ -72,7 +72,7 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
       open={open} 
       title="Assistant"
       variant="floating"
-      position="right"
+      position={panelPosition}
     >
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3 min-w-0">

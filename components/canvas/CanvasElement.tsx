@@ -288,7 +288,7 @@ export function DraggableElement({
           {/* Rotation handle */}
           <div
             onMouseDown={handleRotateStart}
-            className="absolute -top-9 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-white border-2 border-zinc-900 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+            className="absolute -bottom-9 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-white border-2 border-zinc-900 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
           >
             <RotateCw className="w-2.5 h-2.5 text-zinc-600" />
           </div>
@@ -320,16 +320,7 @@ export function DraggableElement({
         </>
       )}
 
-      {/* Delete button */}
-      {isSelected && (
-        <button
-          onClick={handleDelete}
-          className="absolute -top-7 left-0 flex items-center gap-1 px-1.5 py-1 bg-zinc-900 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <Trash2 className="w-3 h-3" />
-          <span className="pr-0.5">Delete</span>
-        </button>
-      )}
+
 
       {renderContent()}
     </div>

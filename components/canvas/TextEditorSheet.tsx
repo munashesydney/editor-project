@@ -12,7 +12,7 @@ import {
 import { cn } from "../../lib/utils";
 
 export function TextEditorSheet({ open }: { open: boolean }) {
-  const { elements, selectedId, updateElement, setActivePanel } = useCanvasStore();
+  const { elements, selectedId, updateElement, setActivePanel, panelPosition } = useCanvasStore();
 
   const selectedElement = elements.find((el) => el.id === selectedId);
   const isTextSelected = selectedElement?.type === "text";
@@ -37,6 +37,7 @@ export function TextEditorSheet({ open }: { open: boolean }) {
       open={open} 
       title="Text Settings" 
       variant="floating" 
+      position={panelPosition}
       onClose={() => setActivePanel(null)}
     >
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5 min-w-0">

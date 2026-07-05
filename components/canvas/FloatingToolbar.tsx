@@ -1,14 +1,14 @@
 import React from "react";
 import { useCanvasStore } from "../../lib/store/canvas-store";
 import { cn } from "../../lib/utils";
-import { Type, PaintBucket, Trash2, MoreHorizontal } from "lucide-react";
+import { Type, PaintBucket, Trash2, MoreHorizontal, ArrowLeftRight } from "lucide-react";
 
 interface FloatingToolbarProps {
   scale: number;
 }
 
 export function FloatingToolbar({ scale }: FloatingToolbarProps) {
-  const { elements, selectedId, setActivePanel, deleteElement } = useCanvasStore();
+  const { elements, selectedId, panelPosition, setPanelPosition, setActivePanel, deleteElement } = useCanvasStore();
 
   const selectedElement = elements.find((el) => el.id === selectedId);
 
@@ -60,6 +60,16 @@ export function FloatingToolbar({ scale }: FloatingToolbarProps) {
         title="Delete"
       >
         <Trash2 className="w-4 h-4" />
+      </button>
+
+      <div className="w-px h-4 bg-zinc-200 mx-1" />
+
+      <button 
+        onClick={() => setPanelPosition(panelPosition === "left" ? "right" : "left")}
+        className="p-2 hover:bg-zinc-100 rounded-md transition-colors text-zinc-700" 
+        title="Switch Sides"
+      >
+        <ArrowLeftRight className="w-4 h-4" />
       </button>
 
       {/* Placeholder for more options */}

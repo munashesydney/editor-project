@@ -4,8 +4,6 @@ import React, { useRef, useEffect, useState } from "react";
 import { CanvasElement } from "../../lib/types/canvas";
 import { useCanvasStore } from "../../lib/store/canvas-store";
 import { DraggableElement } from "./CanvasElement";
-import { TextEditorSheet } from "./TextEditorSheet";
-import { ShapeEditorSheet } from "./ShapeEditorSheet";
 import { FloatingToolbar } from "./FloatingToolbar";
 import { DesignSheet } from "../layout/DesignSheet";
 import { HelpCircle } from "lucide-react";
@@ -22,7 +20,6 @@ export function Canvas() {
     elements,
     selectedId,
     activeTool,
-    activePanel,
     selectElement,
     deselectAll,
     updateElement,
@@ -104,10 +101,7 @@ export function Canvas() {
     };
 
   return (
-    <div className="flex-1 w-full h-full flex flex-row overflow-hidden bg-zinc-100">
-      <TextEditorSheet open={activePanel === "text"} />
-      <ShapeEditorSheet open={activePanel === "shape"} />
-
+    <div className="flex-1 w-full h-full flex overflow-hidden">
       <div 
         ref={containerRef} 
         className="flex-1 h-full flex items-center justify-center relative overflow-hidden"
