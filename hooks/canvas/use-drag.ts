@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { CanvasElement as CanvasElementType } from "../../lib/types/canvas";
+import { useCanvasStore, SnapLine } from "../../lib/store/canvas-store";
 
 interface UseDragParams {
   element: CanvasElementType;
@@ -68,6 +69,53 @@ export function useDrag({
       let newY =
         e.clientY - canvasRect.top - dragOffset.current.y * scale;
 
+      // Smart Guides & Snapping logic
+      const SNAP_THRESHOLD = 5;
+      const PADDING = 24;
+      const activeSnaps: SnapLine[] = [];
+
+      // X Snapping
+      const centerX = canvasBounds.width / 2;
+      const elementCenterX = newX + actualWidth / 2;
+      
+      // Check center X
+      if (Math.abs(elementCenterX - centerX) < SNAP_THRESHOLD) {
+        newX = centerX - actualWidth / 2;
+        activeSnaps.push({ axis: "x", value: centerX });
+      } 
+      // Check left edge padding
+      else if (Math.abs(newX - PADDING) < SNAP_THRESHOLD) {
+        newX = PADDING;
+        activeSnaps.push({ axis: "x", value: PADDING });
+      }
+      // Check right edge padding
+      else if (Math.abs((newX + actualWidth) - (canvasBounds.width - PADDING)) < SNAP_THRESHOLD) {
+        newX = canvasBounds.width - PADDING - actualWidth;
+        activeSnaps.push({ axis: "x", value: canvasBounds.width - PADDING });
+      }
+
+      // Y Snapping
+      const centerY = canvasBounds.height / 2;
+      const elementCenterY = newY + actualHeight / 2;
+      
+      // Check center Y
+      if (Math.abs(elementCenterY - centerY) < SNAP_THRESHOLD) {
+        newY = centerY - actualHeight / 2;
+        activeSnaps.push({ axis: "y", value: centerY });
+      }
+      // Check top edge padding
+      else if (Math.abs(newY - PADDING) < SNAP_THRESHOLD) {
+        newY = PADDING;
+        activeSnaps.push({ axis: "y", value: PADDING });
+      }
+      // Check bottom edge padding
+      else if (Math.abs((newY + actualHeight) - (canvasBounds.height - PADDING)) < SNAP_THRESHOLD) {
+        newY = canvasBounds.height - PADDING - actualHeight;
+        activeSnaps.push({ axis: "y", value: canvasBounds.height - PADDING });
+      }
+
+      useCanvasStore.getState().setActiveSnapLines(activeSnaps);
+
       newX = Math.max(0, Math.min(newX, canvasBounds.width - actualWidth));
       newY = Math.max(0, Math.min(newY, canvasBounds.height - actualHeight));
 
@@ -76,6 +124,7 @@ export function useDrag({
 
     const handleMouseUp = () => {
       setIsDragging(false);
+      useCanvasStore.getState().setActiveSnapLines([]);
     };
 
     window.addEventListener("mousemove", handleMouseMove);

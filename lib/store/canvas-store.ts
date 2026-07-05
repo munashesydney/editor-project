@@ -9,6 +9,11 @@ import {
 } from "../types/canvas";
 import { createElement, generateId } from "../services/canvas-service";
 
+export interface SnapLine {
+  axis: "x" | "y";
+  value: number;
+}
+
 const SEED_MESSAGES: AIMessage[] = [
   {
     id: "seed-1",
@@ -53,6 +58,7 @@ interface CanvasStore {
   customPathData: string;
   activePanel: "text" | "shape" | null;
   panelPosition: "left" | "right";
+  activeSnapLines: SnapLine[];
   messages: AIMessage[];
 
   addElement: (type: ElementType, position?: { x: number; y: number }) => void;
@@ -71,6 +77,7 @@ interface CanvasStore {
   setCustomPathData: (path: string) => void;
   setActivePanel: (panel: "text" | "shape" | null) => void;
   setPanelPosition: (position: "left" | "right") => void;
+  setActiveSnapLines: (lines: SnapLine[]) => void;
   addMessage: (role: "user" | "assistant", content: string) => void;
 }
 
@@ -82,6 +89,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   customPathData: "",
   activePanel: null,
   panelPosition: "left",
+  activeSnapLines: [],
   messages: SEED_MESSAGES,
 
   addElement: (type, position) => {
@@ -183,6 +191,10 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
   setPanelPosition: (position) => {
     set({ panelPosition: position });
+  },
+
+  setActiveSnapLines: (lines) => {
+    set({ activeSnapLines: lines });
   },
 
   addMessage: (role, content) => {

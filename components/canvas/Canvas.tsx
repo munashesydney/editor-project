@@ -25,6 +25,7 @@ export function Canvas() {
     updateElement,
     deleteElement,
     addElement,
+    activeSnapLines,
   } = useCanvasStore();
 
   const handleCanvasClick = (e: React.MouseEvent) => {
@@ -128,6 +129,29 @@ export function Canvas() {
                   onSelect={() => selectElement(element.id)}
                   onUpdate={handleElementUpdate(element.id)}
                   canvasBounds={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}
+                />
+              ))}
+
+              {/* Render Snap Guides */}
+              {activeSnapLines.map((line, idx) => (
+                <div
+                  key={`snap-${idx}`}
+                  className="absolute bg-pink-500 pointer-events-none z-50"
+                  style={
+                    line.axis === "x"
+                      ? {
+                          left: line.value,
+                          top: 0,
+                          bottom: 0,
+                          width: 1,
+                        }
+                      : {
+                          top: line.value,
+                          left: 0,
+                          right: 0,
+                          height: 1,
+                        }
+                  }
                 />
               ))}
 
