@@ -1,10 +1,43 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Layers } from "lucide-react";
+import { authService } from "@/lib/services/auth.service";
 
 export default function SignupPage() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      const { data, error } = await authService.signUp(email, password, name);
+      
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      setSuccess(true);
+      // Wait a moment then redirect or tell them to check email
+    } catch (err: any) {
+      setError(err.message || "An error occurred during signup");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen w-full bg-zinc-50 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
       
@@ -44,13 +77,28 @@ export default function SignupPage() {
             Create an account to start designing.
           </p>
 
-          <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
+          {error && (
+            <div className="bg-red-50 border-2 border-red-500 text-red-700 p-3 mb-6 font-medium text-sm">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-green-50 border-2 border-green-500 text-green-700 p-3 mb-6 font-medium text-sm">
+              Check your email for the confirmation link!
+            </div>
+          )}
+
+          <form className="flex flex-col gap-5" onSubmit={handleSignup}>
             
             <div className="flex flex-col gap-2">
               <label className="font-bold text-zinc-900 text-sm">FULL NAME</label>
               <input 
                 type="text" 
                 placeholder="Jane Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
                 className="w-full border-2 border-zinc-200 bg-zinc-50 p-4 font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:bg-white transition-colors rounded-none"
               />
             </div>
@@ -60,6 +108,9 @@ export default function SignupPage() {
               <input 
                 type="email" 
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="w-full border-2 border-zinc-200 bg-zinc-50 p-4 font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:bg-white transition-colors rounded-none"
               />
             </div>
@@ -69,12 +120,19 @@ export default function SignupPage() {
               <input 
                 type="password" 
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
                 className="w-full border-2 border-zinc-200 bg-zinc-50 p-4 font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 focus:bg-white transition-colors rounded-none"
               />
             </div>
 
-            <button className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold text-lg py-4 border-2 border-transparent hover:border-zinc-900 hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(24,24,27,1)] transition-all mt-4">
-              Create Account
+            <button 
+              type="submit"
+              disabled={loading || success}
+              className="w-full bg-pink-500 hover:bg-pink-600 disabled:bg-zinc-300 text-white font-bold text-lg py-4 border-2 border-transparent hover:border-zinc-900 hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(24,24,27,1)] transition-all mt-4"
+            >
+              {loading ? "Creating..." : success ? "Check Email" : "Create Account"}
             </button>
           </form>
 
