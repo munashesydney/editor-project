@@ -41,11 +41,14 @@ export default function GlobalModal() {
 
         const project = await projectService.createProject(workspaceId, name, finalWidth, finalHeight)
         router.push(`/workspaces/${workspaceId}/project/${project.id}`)
+        // Do not close modal here, let the page transition unmount it
+        // so the user sees "Creating..." until the new page loads.
+      } else {
+        closeModal()
+        setLoading(false)
       }
-      closeModal()
     } catch (err: any) {
       setError(err.message || 'An error occurred')
-    } finally {
       setLoading(false)
     }
   }

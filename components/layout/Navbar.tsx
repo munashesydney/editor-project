@@ -25,7 +25,7 @@ import { cn } from "../../lib/utils";
 import { useCanvasStore } from "../../lib/store/canvas-store";
 import { exportAsPNG, exportAsSVG, exportAsPDF, exportAsJSON, importFromJSON } from "../../lib/services/export-service";
 
-export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project" }: { chatPanelOpen?: boolean, projectName?: string }) {
+export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project", workspaceId }: { chatPanelOpen?: boolean, projectName?: string, workspaceId?: string }) {
   const { elements, setElements, deselectAll } = useCanvasStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -67,7 +67,7 @@ export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project"
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-12 bg-white">
+    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white">
       {/* Bottom border — stops before the chat panel when it\'s open */}
       <div
         className={cn(
@@ -89,24 +89,36 @@ export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project"
 
       {/* Left: Logo + project name */}
       <div className="h-full px-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/workspaces" className="flex items-center gap-2 group cursor-pointer transition-opacity hover:opacity-80">
-            <div className="w-7 h-7 bg-zinc-900 flex items-center justify-center rounded-md">
-              <Layers className="w-3.5 h-3.5 text-white" />
+        <div className="flex items-center gap-4">
+          <Link href={workspaceId ? `/workspaces/${workspaceId}` : "/workspaces"} className="flex items-center gap-2 group cursor-pointer transition-opacity hover:opacity-80">
+            <div className="w-8 h-8 bg-zinc-900 flex items-center justify-center rounded-none">
+              <Layers className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-zinc-900 text-sm tracking-tight group-hover:text-pink-600 transition-colors">
+            <span className="font-bold text-zinc-900 text-lg tracking-tight group-hover:text-zinc-700 transition-colors">
               Canvas
             </span>
           </Link>
 
-          <div className="h-4 w-px bg-zinc-200 ml-2" />
+          <div className="h-5 w-px bg-zinc-200 ml-1 mr-1" />
 
-          <div className="flex items-center gap-1 cursor-pointer select-none group">
-            <span className="text-sm text-zinc-500 group-hover:text-zinc-700 transition-colors">
-              {projectName}
-            </span>
-            <ChevronDown className="w-3 h-3 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="flex items-center gap-2 cursor-pointer select-none group px-2 py-1 rounded hover:bg-zinc-100 transition-colors">
+                <span className="text-sm font-medium text-zinc-700 group-hover:text-zinc-900 transition-colors">
+                  {projectName}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-600 transition-colors" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-52">
+              <DropdownMenuItem className="gap-2.5">
+                Rename project
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-2.5">
+                Project settings
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Right: 3-dot menu */}

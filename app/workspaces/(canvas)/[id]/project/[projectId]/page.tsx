@@ -26,7 +26,7 @@ export default async function ProjectPage({ params }: { params: { id: string, pr
   return (
     <>
       <CanvasHydrator project={project} />
-      <CanvasEditor projectName={project.name} />
+      <CanvasEditor projectName={project.name} workspaceId={project.workspace_id} />
     </>
   );
 }
