@@ -7,23 +7,43 @@ import { ArrowLeft, Check, Sparkles, Building, User, Mail, Trash2 } from "lucide
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "../../../lib/utils";
 
+import { workspaceService } from "@/lib/services/workspace.service";
+
 export default function AddWorkspacePage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [workspaceName, setWorkspaceName] = useState("");
   const [type, setType] = useState<"personal" | "team">("team");
   const [invites, setInvites] = useState([""]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [createdWorkspaceId, setCreatedWorkspaceId] = useState<string | null>(null);
 
   const handleNext = () => {
     if (step === 1 && !workspaceName.trim()) return;
     setStep(step + 1);
   };
 
-  const handleCreate = () => {
-    // In a real app, this would hit an API
-    setTimeout(() => {
-      router.push("/workspaces/new-id"); // Mock routing to new workspace
-    }, 1500);
+  const handleCreate = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const workspace = await workspaceService.createWorkspace(workspaceName);
+      setCreatedWorkspaceId(workspace.id);
+      setStep(3); // Go to success step
+    } catch (err: any) {
+      setError(err.message || "Failed to create workspace");
+      setStep(1); // Go back to show error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEnterWorkspace = () => {
+    if (createdWorkspaceId) {
+      router.push(`/workspaces/${createdWorkspaceId}`);
+      router.refresh();
+    }
   };
 
   return (
@@ -73,6 +93,12 @@ export default function AddWorkspacePage() {
                   <h1 className="text-2xl font-bold text-zinc-900">Create a Workspace</h1>
                   <p className="text-zinc-500 mt-2">Where will your next big idea come to life?</p>
                 </div>
+
+                {error && (
+                  <div className="bg-red-50 border-2 border-red-500 text-red-700 p-3 mb-6 font-medium text-sm">
+                    {error}
+                  </div>
+                )}
 
                 <div className="space-y-6">
                   <div>
@@ -193,10 +219,11 @@ export default function AddWorkspacePage() {
                     Back
                   </button>
                   <button
-                    onClick={handleNext}
-                    className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-none border-2 border-transparent hover:border-zinc-900 hover:-translate-y-1 hover:shadow-[4px_4px_0px_rgba(24,24,27,1)] transition-all"
+                    onClick={handleCreate}
+                    disabled={loading}
+                    className="flex-1 bg-pink-500 hover:bg-pink-600 disabled:bg-zinc-300 text-white font-semibold py-3 rounded-none border-2 border-transparent hover:border-zinc-900 hover:-translate-y-1 hover:shadow-[4px_4px_0px_rgba(24,24,27,1)] transition-all"
                   >
-                    Skip & Create
+                    {loading ? "Creating..." : "Skip & Create"}
                   </button>
                 </div>
               </motion.div>
@@ -220,7 +247,7 @@ export default function AddWorkspacePage() {
                 </p>
 
                 <button
-                  onClick={handleCreate}
+                  onClick={handleEnterWorkspace}
                   className="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-8 rounded-none border-2 border-transparent hover:border-zinc-900 hover:-translate-y-1 hover:shadow-[4px_4px_0px_rgba(24,24,27,1)] transition-all"
                 >
                   Enter Workspace

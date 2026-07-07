@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Layers, Search, Bell, Menu } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { usePathname } from "next/navigation";
+import GlobalSheet from "../../components/ui/GlobalSheet";
 
 export default function WorkspacesLayout({
   children,
@@ -80,6 +81,8 @@ export default function WorkspacesLayout({
       <main className="flex-1 w-full max-w-6xl mx-auto p-4 md:p-8">
         {children}
       </main>
+
+      <GlobalSheet />
     </div>
   );
 }
