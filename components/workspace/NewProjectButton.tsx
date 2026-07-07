@@ -23,7 +23,7 @@ export function NewProjectButton({ workspaceId }: NewProjectButtonProps) {
       <div className="w-12 h-12 rounded-none bg-zinc-100 group-hover:bg-zinc-900 flex items-center justify-center text-zinc-400 group-hover:text-white transition-colors mb-3">
         <Plus className="w-6 h-6" />
       </div>
-      <span className="font-semibold text-zinc-600 group-hover:text-zinc-900 transition-colors">
+      <span className="font-semibold text-zinc-600 group-hover:text-zinc-900 transition-colors uppercase">
         New Project
       </span>
     </button>

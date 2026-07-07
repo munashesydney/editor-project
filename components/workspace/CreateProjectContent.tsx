@@ -38,6 +38,7 @@ export default function CreateProjectContent() {
       const finalHeight = selectedTemplate.id === 'custom' ? customHeight : selectedTemplate.height
 
       const project = await projectService.createProject(workspaceId, name, finalWidth, finalHeight)
+      closeModal()
       router.push(`/workspaces/${workspaceId}/project/${project.id}`)
     } catch (err: any) {
       setError(err.message || 'An error occurred')
