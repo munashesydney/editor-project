@@ -77,7 +77,7 @@ export default function ExportModal() {
           <label className="font-bold text-zinc-900 text-sm uppercase mb-3">
             Preview
           </label>
-          <div className="flex-1 bg-white border-4 border-zinc-900 overflow-hidden relative flex items-center justify-center min-h-[300px]">
+          <div className="flex-1 bg-white border-4 border-zinc-900 overflow-hidden relative flex items-center justify-center min-h-[300px] md:min-h-[400px]">
             {/* Checkerboard background to show transparency */}
             <div
               className="absolute inset-0 opacity-20 pointer-events-none"
@@ -88,19 +88,40 @@ export default function ExportModal() {
               }}
             />
 
-            {/* A simple placeholder box representing the canvas to show color */}
-            <div
-              className="relative shadow-md border-2 border-zinc-900"
-              style={{
-                width: canvasWidth > canvasHeight ? "80%" : "auto",
-                height: canvasHeight > canvasWidth ? "80%" : "auto",
-                aspectRatio: `${canvasWidth} / ${canvasHeight}`,
-                backgroundColor: transparent ? "transparent" : (canvasBackgroundColor || "#ffffff"),
-              }}
-            >
-              <div className="absolute inset-0 flex items-center justify-center border-2 border-dashed border-zinc-900/20 text-zinc-900 font-bold text-sm bg-white/50 backdrop-blur-sm">
-                {canvasWidth} x {canvasHeight}
-              </div>
+            {/* Absolute positioning ensures the SVG scales to fit the available space dictated by the modal layout, rather than stretching the modal */}
+            <div className="absolute inset-8 flex items-center justify-center z-10 pointer-events-none">
+              <svg
+                viewBox={`0 0 ${canvasWidth} ${canvasHeight}`}
+                className="w-full h-full drop-shadow-[4px_4px_0px_rgba(24,24,27,1)]"
+              >
+                {/* Solid Background */}
+                <rect
+                  x="0" y="0"
+                  width={canvasWidth} height={canvasHeight}
+                  fill={transparent ? "transparent" : (canvasBackgroundColor || "#ffffff")}
+                />
+                
+                {/* Ghost overlay & border */}
+                <rect
+                  x="0" y="0"
+                  width={canvasWidth} height={canvasHeight}
+                  fill="rgba(255,255,255,0.3)"
+                  stroke="#18181b"
+                  strokeWidth={4}
+                  vectorEffect="non-scaling-stroke"
+                />
+
+                <text
+                  x="50%" y="50%"
+                  dominantBaseline="central" textAnchor="middle"
+                  fill="#18181b"
+                  fontFamily="sans-serif"
+                  fontWeight="bold"
+                  fontSize={Math.max(canvasWidth, canvasHeight) * 0.05}
+                >
+                  {canvasWidth} × {canvasHeight}
+                </text>
+              </svg>
             </div>
           </div>
         </div>
