@@ -1,19 +1,36 @@
 import React from "react";
 import Link from "next/link";
 import { Plus, LayoutTemplate, ArrowLeft } from "lucide-react";
-import { workspaceService } from "@/lib/services/workspace.service";
-import { projectService } from "@/lib/services/project.service";
 import { ProjectCard } from "@/components/workspace/ProjectCard";
 import { NewProjectButton } from "@/components/workspace/NewProjectButton";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = 'force-dynamic';
 
 export default async function WorkspaceHomePage({ params }: { params: { id: string } }) {
   const workspaceId = params.id;
+  const supabase = createClient();
   
-  // Fetch workspace and its projects
-  const workspace = await workspaceService.getWorkspace(workspaceId);
-  const projects = await projectService.getProjects(workspaceId);
+  // Fetch workspace
+  const { data: workspace, error: wError } = await supabase
+    .from('workspaces')
+    .select('*')
+    .eq('id', workspaceId)
+    .single();
+
+  // Fetch projects
+  const { data: projects, error: pError } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('workspace_id', workspaceId)
+    .order('updated_at', { ascending: false });
+
+  if (wError) console.error(wError);
+  if (pError) console.error(pError);
+
+  if (!workspace) {
+    return <div>Workspace not found.</div>;
+  }
 
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in duration-500">
@@ -37,7 +54,7 @@ export default async function WorkspaceHomePage({ params }: { params: { id: stri
               <div>
                 <h1 className="text-3xl font-bold text-zinc-900">{workspace.name}</h1>
                 <p className="text-zinc-500 mt-1 flex items-center gap-2">
-                  <span className="flex items-center gap-1"><LayoutTemplate className="w-4 h-4" /> {projects.length} Projects</span>
+                  <span className="flex items-center gap-1"><LayoutTemplate className="w-4 h-4" /> {projects?.length || 0} Projects</span>
                   <span className="w-1 h-1 rounded-full bg-zinc-300" />
                   <span>Team Workspace</span>
                 </p>
@@ -57,7 +74,7 @@ export default async function WorkspaceHomePage({ params }: { params: { id: stri
           
           <NewProjectButton workspaceId={workspaceId} />
 
-          {projects.map((project) => (
+          {projects?.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}
         </div>

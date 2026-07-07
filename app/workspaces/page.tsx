@@ -1,15 +1,27 @@
 import React from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { workspaceService } from "@/lib/services/workspace.service";
 import { WorkspaceCard } from "@/components/workspace/WorkspaceCard";
+import { createClient } from "@/lib/supabase/server";
 
-// Using Server Component for data fetching (Next.js App Router pattern)
-// We use `export const dynamic = 'force-dynamic'` so it doesn't cache stale data
 export const dynamic = 'force-dynamic';
 
 export default async function WorkspacesPage() {
-  const workspaces = await workspaceService.getWorkspaces();
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('workspaces')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error(error);
+  }
+
+  const workspaces = (data || []).map(w => ({
+    ...w,
+    project_count: 0,
+    member_count: 1
+  }));
 
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
