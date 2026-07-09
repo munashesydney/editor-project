@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { ArrowUp } from "lucide-react";
 import { useCanvasStore } from "../../lib/store/canvas-store";
-import { processAICommand } from "../../lib/services/ai-service";
+import { aiJobService } from "../../lib/services/ai-job.service";
+import { useParams } from "next/navigation";
 import { SidePanel } from "../layout/SidePanel";
 import { cn } from "../../lib/utils";
 
@@ -18,6 +19,8 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { messages, addMessage, addElements, panelPosition } = useCanvasStore();
+  const params = useParams();
+  const projectId = params?.projectId as string | undefined;
 
   useEffect(() => {
     if (open) {
@@ -43,14 +46,28 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
     addMessage("user", userMessage);
     setIsTyping(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 480));
-
-    const result = processAICommand(userMessage);
-    addMessage("assistant", result.response);
-    setIsTyping(false);
-
-    if (result.elements) {
-      addElements(result.elements);
+    try {
+      const jobId = await aiJobService.createJob(userMessage, projectId);
+      
+      const unsubscribe = aiJobService.subscribeToJob(jobId, (job) => {
+        if (job.status === "completed") {
+          addMessage("assistant", job.response_text || "");
+          setIsTyping(false);
+          
+          if (job.response_elements) {
+            addElements(job.response_elements);
+          }
+          unsubscribe();
+        } else if (job.status === "failed") {
+          addMessage("assistant", "Sorry, an error occurred: " + (job.error_message || "Unknown error"));
+          setIsTyping(false);
+          unsubscribe();
+        }
+      });
+    } catch (error: any) {
+      console.error(error);
+      addMessage("assistant", "Failed to submit job: " + (error.message || "Unknown error"));
+      setIsTyping(false);
     }
   };
 
