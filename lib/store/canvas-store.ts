@@ -55,7 +55,8 @@ interface CanvasStore {
   setMultiSelectedIds: (ids: string[]) => void;
   groupElements: () => void;
   ungroupElement: (groupId: string) => void;
-  addMessage: (role: "user" | "assistant", content: string) => void;
+  addMessage: (role: "user" | "assistant", content: string) => string;
+  updateMessage: (id: string, updates: Partial<AIMessage>) => void;
   setMessages: (messages: AIMessage[]) => void;
   setActiveChatId: (chatId: string | null) => void;
   setChats: (chats: AIChat[]) => void;
@@ -313,6 +314,15 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     };
     set((state) => ({
       messages: [...state.messages, message],
+    }));
+    return message.id;
+  },
+
+  updateMessage: (id, updates) => {
+    set((state) => ({
+      messages: state.messages.map((msg) =>
+        msg.id === id ? { ...msg, ...updates } : msg
+      ),
     }));
   },
   

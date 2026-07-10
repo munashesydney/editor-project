@@ -10,6 +10,8 @@ import { useParams } from "next/navigation";
 import { SidePanel } from "../layout/SidePanel";
 import { cn } from "../../lib/utils";
 import { AIMessage } from "../../lib/types/canvas";
+import { streamService } from "../../lib/services/stream.service";
+import { createClient } from "../../lib/supabase/client";
 
 interface AIChatPanelProps {
   open: boolean;
@@ -22,7 +24,7 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { 
-    messages, addMessage, addElements, panelPosition,
+    messages, addMessage, updateMessage, addElements, panelPosition,
     chats, activeChatId, setChats, setActiveChatId, setMessages,
     canvasWidth, canvasHeight, elements
   } = useCanvasStore();
@@ -134,34 +136,49 @@ export function AIChatPanel({ open }: AIChatPanelProps) {
       
       const jobId = await createAiJobAction(userMessage, projectId, activeChatId || undefined, canvasState);
       
-      const unsubscribe = aiJobService.subscribeToJob(jobId, (job) => {
-        if (job.status === "completed") {
-          addMessage("assistant", job.response_text || "");
-          setIsTyping(false);
-          
-          if (job.response_elements) {
-            addElements(job.response_elements);
-          }
-          unsubscribe();
-        } else if (job.status === "failed") {
-          addMessage("assistant", "Sorry, an error occurred: " + (job.error_message || "Unknown error"));
-          setIsTyping(false);
-          unsubscribe();
-        }
-      });
+      // Get session token for SSE auth
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
       
-      const initialJob = await aiJobService.getJob(jobId);
-      if (initialJob && initialJob.status === "completed") {
-        addMessage("assistant", initialJob.response_text || "");
-        setIsTyping(false);
-        if (initialJob.response_elements) {
-          addElements(initialJob.response_elements);
-        }
-        unsubscribe();
-      } else if (initialJob && initialJob.status === "failed") {
-        addMessage("assistant", "Sorry, an error occurred: " + (initialJob.error_message || "Unknown error"));
-        setIsTyping(false);
-        unsubscribe();
+      if (token) {
+        // Create an empty assistant message to stream into
+        const assistantMsgId = addMessage("assistant", "");
+        let currentText = "";
+
+        streamService.connect(jobId, token, {
+          onTextDelta: (delta) => {
+            currentText += delta;
+            updateMessage(assistantMsgId, { content: currentText });
+          },
+          onElementAdded: (newElements) => {
+            addElements(newElements);
+          },
+          onDone: () => {
+            setIsTyping(false);
+          },
+          onError: (msg) => {
+            console.error("Stream error:", msg);
+            currentText += `\n\n[Error: ${msg}]`;
+            updateMessage(assistantMsgId, { content: currentText });
+            setIsTyping(false);
+          }
+        });
+      } else {
+        // Fallback if no token (shouldn't happen if authenticated)
+        console.warn("No auth token, using fallback polling");
+        const unsubscribe = aiJobService.subscribeToJob(jobId, (job) => {
+          if (job.status === "completed") {
+            addMessage("assistant", job.response_text || "");
+            setIsTyping(false);
+            if (job.response_elements) addElements(job.response_elements);
+            unsubscribe();
+          } else if (job.status === "failed") {
+            addMessage("assistant", "Sorry, an error occurred: " + (job.error_message || "Unknown error"));
+            setIsTyping(false);
+            unsubscribe();
+          }
+        });
       }
     } catch (error: any) {
       console.error(error);
