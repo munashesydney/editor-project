@@ -13,26 +13,31 @@ export function CanvasHydrator({ project }: CanvasHydratorProps) {
   const { setElements, elements, setCanvasDimensions } = useCanvasStore();
   const isHydrated = useRef(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const prevSettingsRef = useRef<{ backgroundColor?: string; width?: number; height?: number } | null>(null);
 
   // 1. Hydrate store on mount
   useEffect(() => {
-    setCanvasDimensions(project.width || 1920, project.height || 1080);
-    
-    if (project.canvas_state) {
-      if (project.canvas_state.elements) {
-        setElements(project.canvas_state.elements);
-      }
-      if (project.canvas_state.backgroundColor) {
-        useCanvasStore.getState().setCanvasBackgroundColor(project.canvas_state.backgroundColor);
-      }
-    } else {
-      setElements([]); // Initialize empty if no state
+    const state = project.canvas_state;
+    const settings = state?.settings || {};
+
+    setCanvasDimensions(settings.width || 1920, settings.height || 1080);
+    setElements(state?.elements || []);
+
+    if (settings.backgroundColor) {
+      useCanvasStore.getState().setCanvasBackgroundColor(settings.backgroundColor);
     }
-    // Small delay to prevent immediate re-save on hydration
+
+    // Snapshot the initial settings so we preserve width/height on saves
+    prevSettingsRef.current = {
+      backgroundColor: settings.backgroundColor,
+      width: settings.width,
+      height: settings.height,
+    };
+
     setTimeout(() => {
       isHydrated.current = true;
     }, 500);
-  }, [project.id]); // Only re-hydrate if project ID changes
+  }, [project.id]);
 
   // 2. Subscribe to changes and debounced save
   useEffect(() => {
@@ -45,15 +50,20 @@ export function CanvasHydrator({ project }: CanvasHydratorProps) {
 
       saveTimeoutRef.current = setTimeout(async () => {
           try {
+            // width/height are snapshotted on mount and never overwritten on save
             await projectService.updateProjectState(project.id, {
               elements: state.elements,
-              backgroundColor: state.canvasBackgroundColor,
+              settings: {
+                backgroundColor: state.canvasBackgroundColor,
+                width: prevSettingsRef.current?.width ?? 1920,
+                height: prevSettingsRef.current?.height ?? 1080,
+              },
             });
             console.log("Canvas saved securely to database.");
         } catch (err) {
           console.error("Failed to save canvas state:", err);
         }
-      }, 1500); // 1.5 second debounce
+      }, 1500);
     });
 
     return () => {
@@ -62,5 +72,5 @@ export function CanvasHydrator({ project }: CanvasHydratorProps) {
     };
   }, [project.id]);
 
-  return null; // This is a logic-only component
+  return null;
 }

@@ -20,7 +20,7 @@ export default async function ProjectPage({ params }: { params: { id: string, pr
 
   // Ensure canvas_state is always an object, not null
   if (!project.canvas_state) {
-    project.canvas_state = { elements: [] };
+    project.canvas_state = { elements: [], settings: { backgroundColor: "#ffffff", width: project.width || 1920, height: project.height || 1080 } };
   }
 
   return (

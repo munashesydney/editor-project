@@ -84,12 +84,24 @@ export async function exportAsPDF(element: HTMLElement, options: ExportOptions =
   }
 }
 
+export interface CanvasExportData {
+  elements: CanvasElement[];
+  settings?: {
+    backgroundColor?: string;
+    width?: number;
+    height?: number;
+  };
+}
+
 /**
- * Exports the canvas elements as a JSON file.
+ * Exports the canvas elements and settings as a JSON file.
  */
-export function exportAsJSON(elements: CanvasElement[], filename = "canvas.json") {
+export function exportAsJSON(
+  data: CanvasExportData,
+  filename = "canvas.json"
+) {
   try {
-    const jsonStr = JSON.stringify(elements, null, 2);
+    const jsonStr = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     downloadURI(url, filename);
@@ -101,21 +113,26 @@ export function exportAsJSON(elements: CanvasElement[], filename = "canvas.json"
 }
 
 /**
- * Imports a JSON file and parses it into CanvasElements.
+ * Imports a JSON file and parses it into canvas data.
+ * Expected format: { elements: [...], settings?: { backgroundColor?, width?, height? } }
  */
-export async function importFromJSON(file: File): Promise<CanvasElement[]> {
+export async function importFromJSON(file: File): Promise<CanvasExportData> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const result = e.target?.result as string;
         if (!result) throw new Error("File is empty");
-        const elements = JSON.parse(result) as CanvasElement[];
-        // Basic validation: ensure it's an array
-        if (!Array.isArray(elements)) {
-          throw new Error("Invalid format: expected an array of elements");
+        const parsed = JSON.parse(result);
+
+        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.elements)) {
+          throw new Error("Invalid format: expected an object with an 'elements' array");
         }
-        resolve(elements);
+
+        resolve({
+          elements: parsed.elements,
+          settings: parsed.settings,
+        });
       } catch (err) {
         reject(err);
       }

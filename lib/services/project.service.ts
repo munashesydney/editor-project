@@ -36,7 +36,7 @@ export const projectService = {
           name,
           width,
           height,
-          canvas_state: { elements: [] }
+          canvas_state: { elements: [], settings: { backgroundColor: "#ffffff", width, height } }
         }
       ])
       .select()

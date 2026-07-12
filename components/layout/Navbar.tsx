@@ -27,7 +27,7 @@ import { useModalStore } from "../../lib/store/modal-store";
 import { exportAsPNG, exportAsSVG, exportAsPDF, exportAsJSON, importFromJSON } from "../../lib/services/export-service";
 
 export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project", workspaceId }: { chatPanelOpen?: boolean, projectName?: string, workspaceId?: string }) {
-  const { setElements, deselectAll, undo, redo } = useCanvasStore();
+  const { setElements, setCanvasDimensions, setCanvasBackgroundColor, deselectAll, undo, redo } = useCanvasStore();
   const canUndo = useCanvasStore((s) => s.history.length > 0);
   const canRedo = useCanvasStore((s) => s.futureHistory.length > 0);
   const { openModal } = useModalStore();
@@ -37,8 +37,13 @@ export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project"
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const importedElements = await importFromJSON(file);
-      setElements(importedElements);
+      const data = await importFromJSON(file);
+      setElements(data.elements);
+      if (data.settings?.backgroundColor) {
+        setCanvasBackgroundColor(data.settings.backgroundColor);
+      }
+      // Width/height from imported JSON are informational only —
+      // they're not applied to the project to avoid breaking layouts.
     } catch (err) {
       alert("Failed to import JSON file. Please ensure it's a valid Nalario project.");
     }

@@ -46,7 +46,17 @@ export default function ExportModal() {
       } else if (format === "pdf") {
         await exportAsPDF(canvasNode, { filename: `${filename}.pdf`, transparent, backgroundColor: exportBg });
       } else if (format === "json") {
-        exportAsJSON(elements, `${filename}.json`);
+        exportAsJSON(
+          {
+            elements,
+            settings: {
+              backgroundColor: canvasBackgroundColor,
+              width: canvasWidth,
+              height: canvasHeight,
+            },
+          },
+          `${filename}.json`
+        );
       }
       closeModal();
     } catch (err) {
