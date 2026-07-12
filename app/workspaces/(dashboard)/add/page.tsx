@@ -110,7 +110,7 @@ export default function AddWorkspacePage() {
                       value={workspaceName}
                       onChange={(e) => setWorkspaceName(e.target.value)}
                       placeholder="e.g. Acme Corp Design"
-                      className="w-full px-4 py-3 bg-white border-2 border-zinc-200 rounded-none focus:border-zinc-900 focus:ring-0 outline-none transition-all text-zinc-900 font-medium"
+                      className="w-full px-4 py-3 bg-white border-2 border-zinc-200 rounded-none focus:border-zinc-900 focus:outline-none outline-none transition-all text-zinc-900 font-medium"
                       autoFocus
                     />
                   </div>

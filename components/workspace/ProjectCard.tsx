@@ -11,14 +11,15 @@ import { ProjectPreview } from "../canvas/ProjectPreview";
 interface ProjectCardProps {
   project: Project;
   onProjectDeleted?: (projectId: string) => void;
+  onProjectUpdated?: (projectId: string, name: string) => void;
 }
 
-export function ProjectCard({ project, onProjectDeleted }: ProjectCardProps) {
+export function ProjectCard({ project, onProjectDeleted, onProjectUpdated }: ProjectCardProps) {
   const { openSheet } = useSheetStore();
 
   const handleEdit = (e: React.MouseEvent) => {
     e.preventDefault();
-    openSheet('edit-project', { ...project, onProjectDeleted });
+    openSheet('edit-project', { ...project, onProjectDeleted, onProjectUpdated });
   };
 
   return (

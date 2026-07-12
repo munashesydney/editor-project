@@ -62,6 +62,12 @@ export default function WorkspaceHomePage({
     setTotalCount((prev) => prev - 1);
   };
 
+  const handleProjectUpdated = (projectId: string, name: string) => {
+    setProjects((prev) =>
+      prev.map((p) => (p.id === projectId ? { ...p, name } : p))
+    );
+  };
+
   const totalPages = Math.max(1, Math.ceil(totalCount / PROJECTS_PER_PAGE));
 
   if (loading) {
@@ -127,6 +133,7 @@ export default function WorkspaceHomePage({
               key={project.id}
               project={project}
               onProjectDeleted={handleProjectDeleted}
+              onProjectUpdated={handleProjectUpdated}
             />
           ))}
         </div>

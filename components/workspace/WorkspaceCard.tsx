@@ -2,25 +2,40 @@
 
 import React from "react";
 import Link from "next/link";
-import { Users, Folder, MoreVertical, Star } from "lucide-react";
-import { WorkspaceWithMeta } from "@/lib/models/workspace.model";
+import { Users, Folder, MoreVertical } from "lucide-react";
 import { useSheetStore } from "@/lib/store/sheet-store";
 
 interface WorkspaceCardProps {
-  workspace: WorkspaceWithMeta;
+  workspace: {
+    id: string;
+    name: string;
+    created_at: string;
+    project_count: number;
+    member_count: number;
+  };
+  onWorkspaceUpdated?: (workspaceId: string, name: string) => void;
+  onWorkspaceDeleted?: (workspaceId: string) => void;
 }
 
-export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
+export function WorkspaceCard({
+  workspace,
+  onWorkspaceUpdated,
+  onWorkspaceDeleted,
+}: WorkspaceCardProps) {
   const { openSheet } = useSheetStore();
 
   const handleEdit = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigating to the workspace
-    openSheet('edit-workspace', workspace);
+    e.preventDefault();
+    openSheet("edit-workspace", {
+      ...workspace,
+      onWorkspaceUpdated,
+      onWorkspaceDeleted,
+    });
   };
 
   return (
-    <Link 
-      href={`/workspaces/${workspace.id}`} 
+    <Link
+      href={`/workspaces/${workspace.id}`}
       className="group bg-white rounded-none border-2 border-zinc-200 p-5 hover:-translate-y-1 hover:shadow-[4px_4px_0px_rgba(24,24,27,1)] hover:border-zinc-900 transition-all duration-200 relative flex flex-col h-[200px]"
     >
       <div className="flex justify-between items-start mb-4">
@@ -35,7 +50,7 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
             </span>
           </div>
         </div>
-        <button 
+        <button
           className="p-1.5 text-zinc-400 hover:text-zinc-700 rounded-md hover:bg-zinc-100 transition-colors"
           onClick={handleEdit}
         >

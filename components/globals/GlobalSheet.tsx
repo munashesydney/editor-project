@@ -6,11 +6,9 @@ import { X, Trash2 } from 'lucide-react'
 import { useSheetStore } from '@/lib/store/sheet-store'
 import { workspaceService } from '@/lib/services/workspace.service'
 import { projectService } from '@/lib/services/project.service'
-import { useRouter } from 'next/navigation'
 
 export default function GlobalSheet() {
   const { isOpen, type, data, closeSheet } = useSheetStore()
-  const router = useRouter()
   
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
@@ -32,10 +30,11 @@ export default function GlobalSheet() {
     try {
       if (type === 'edit-workspace') {
         await workspaceService.updateWorkspace(data.id, name)
+        data.onWorkspaceUpdated?.(data.id, name)
       } else if (type === 'edit-project') {
         await projectService.updateProject(data.id, name)
+        data.onProjectUpdated?.(data.id, name)
       }
-      router.refresh()
       closeSheet()
     } catch (err: any) {
       setError(err.message || 'An error occurred')
@@ -54,14 +53,11 @@ export default function GlobalSheet() {
     try {
       if (type === 'edit-workspace') {
         await workspaceService.deleteWorkspace(data.id)
-        router.push('/workspaces') // Redirect to list if deleted
+        data.onWorkspaceDeleted?.(data.id)
       } else if (type === 'edit-project') {
         await projectService.deleteProject(data.id)
         // Optimistically remove from list — no page reload
         data.onProjectDeleted?.(data.id)
-      }
-      if (type !== 'edit-project') {
-        router.refresh()
       }
       closeSheet()
     } catch (err: any) {

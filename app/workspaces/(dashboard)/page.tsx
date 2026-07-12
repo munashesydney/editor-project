@@ -1,27 +1,68 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { WorkspaceCard } from "@/components/workspace/WorkspaceCard";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/client";
 
-export const dynamic = 'force-dynamic';
+interface Workspace {
+  id: string;
+  name: string;
+  created_at: string;
+  project_count: number;
+  member_count: number;
+}
 
-export default async function WorkspacesPage() {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from('workspaces')
-    .select('*')
-    .order('created_at', { ascending: false });
+export default function WorkspacesPage() {
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (error) {
-    console.error(error);
+  useEffect(() => {
+    const supabase = createClient();
+
+    async function fetchData() {
+      setLoading(true);
+      const { data } = await supabase
+        .from("workspaces")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      setWorkspaces(
+        (data || []).map((w) => ({
+          ...w,
+          project_count: 0,
+          member_count: 1,
+        }))
+      );
+      setLoading(false);
+    }
+
+    fetchData();
+  }, []);
+
+  const handleWorkspaceUpdated = (workspaceId: string, name: string) => {
+    setWorkspaces((prev) =>
+      prev.map((w) => (w.id === workspaceId ? { ...w, name } : w))
+    );
+  };
+
+  const handleWorkspaceDeleted = (workspaceId: string) => {
+    setWorkspaces((prev) => prev.filter((w) => w.id !== workspaceId));
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="h-10 w-48 bg-zinc-100 animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-[200px] bg-zinc-100 border-2 border-zinc-200 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
   }
-
-  const workspaces = (data || []).map(w => ({
-    ...w,
-    project_count: 0,
-    member_count: 1
-  }));
 
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -56,7 +97,12 @@ export default async function WorkspacesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {workspaces.map((workspace) => (
-            <WorkspaceCard key={workspace.id} workspace={workspace} />
+            <WorkspaceCard
+              key={workspace.id}
+              workspace={workspace}
+              onWorkspaceUpdated={handleWorkspaceUpdated}
+              onWorkspaceDeleted={handleWorkspaceDeleted}
+            />
           ))}
         </div>
       )}
