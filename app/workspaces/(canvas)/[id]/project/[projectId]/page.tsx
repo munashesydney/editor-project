@@ -1,6 +1,6 @@
 import React from "react";
 import { createClient } from "@/lib/supabase/server";
-import { CanvasEditor, CanvasHydrator } from "@/components/canvas";
+import { CanvasEditor, CanvasHydrator, CanvasPageClient } from "@/components/canvas";
 import { redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
@@ -25,6 +25,7 @@ export default async function ProjectPage({ params }: { params: { id: string, pr
 
   return (
     <>
+      <CanvasPageClient />
       <CanvasHydrator project={project} />
       <CanvasEditor projectName={project.name} workspaceId={project.workspace_id} />
     </>

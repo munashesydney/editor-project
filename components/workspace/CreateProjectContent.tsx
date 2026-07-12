@@ -17,7 +17,7 @@ const TEMPLATES = [
 export default function CreateProjectContent() {
   const { data, closeModal } = useModalStore()
   const router = useRouter()
-  
+
   const [name, setName] = useState('Untitled Project')
   const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES[1]) // Default to 1920x1080
   const [customWidth, setCustomWidth] = useState(500)
@@ -33,12 +33,12 @@ export default function CreateProjectContent() {
     try {
       const workspaceId = data?.workspaceId
       if (!workspaceId) throw new Error("Workspace ID missing")
-      
+
       const finalWidth = selectedTemplate.id === 'custom' ? customWidth : selectedTemplate.width
       const finalHeight = selectedTemplate.id === 'custom' ? customHeight : selectedTemplate.height
 
       const project = await projectService.createProject(workspaceId, name, finalWidth, finalHeight)
-      closeModal()
+      // Modal stays open during navigation — closes when canvas page mounts
       router.push(`/workspaces/${workspaceId}/project/${project.id}`)
     } catch (err: any) {
       setError(err.message || 'An error occurred')
@@ -50,7 +50,7 @@ export default function CreateProjectContent() {
     <>
       <div className="flex items-center justify-between p-6 border-b-4 border-zinc-900 bg-white">
         <h2 className="text-2xl font-bold text-zinc-900 uppercase tracking-tight">Create New Project</h2>
-        <button 
+        <button
           onClick={closeModal}
           className="p-2 hover:bg-pink-100 text-zinc-900 transition-colors border-2 border-transparent hover:border-zinc-900"
         >
@@ -67,8 +67,8 @@ export default function CreateProjectContent() {
 
         <div className="flex flex-col gap-2">
           <label className="font-bold text-zinc-900 text-sm uppercase">Project Name</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full border-4 border-zinc-900 bg-white p-4 font-bold text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:bg-pink-50 transition-colors rounded-none"
@@ -87,8 +87,8 @@ export default function CreateProjectContent() {
                   onClick={() => setSelectedTemplate(t)}
                   className={cn(
                     "flex flex-col items-center justify-center p-4 border-4 transition-all",
-                    isSelected 
-                      ? "border-zinc-900 bg-zinc-900 text-white shadow-[4px_4px_0px_rgba(244,114,182,1)] translate-x-[-2px] translate-y-[-2px]" 
+                    isSelected
+                      ? "border-zinc-900 bg-zinc-900 text-white shadow-[4px_4px_0px_rgba(244,114,182,1)] translate-x-[-2px] translate-y-[-2px]"
                       : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-900 hover:shadow-[4px_4px_0px_rgba(24,24,27,1)] hover:translate-x-[-2px] hover:translate-y-[-2px]"
                   )}
                 >
@@ -109,8 +109,8 @@ export default function CreateProjectContent() {
           <div className="grid grid-cols-2 gap-4 p-4 border-4 border-zinc-900 bg-white">
             <div className="flex flex-col gap-2">
               <label className="font-bold text-zinc-900 text-xs uppercase">Width (px)</label>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 value={customWidth}
                 onChange={(e) => setCustomWidth(Number(e.target.value))}
                 className="w-full border-2 border-zinc-200 focus:border-zinc-900 bg-zinc-50 p-3 font-mono font-bold text-zinc-900 focus:outline-none transition-colors rounded-none"
@@ -118,8 +118,8 @@ export default function CreateProjectContent() {
             </div>
             <div className="flex flex-col gap-2">
               <label className="font-bold text-zinc-900 text-xs uppercase">Height (px)</label>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 value={customHeight}
                 onChange={(e) => setCustomHeight(Number(e.target.value))}
                 className="w-full border-2 border-zinc-200 focus:border-zinc-900 bg-zinc-50 p-3 font-mono font-bold text-zinc-900 focus:outline-none transition-colors rounded-none"
@@ -130,13 +130,13 @@ export default function CreateProjectContent() {
       </div>
 
       <div className="p-6 border-t-4 border-zinc-900 bg-white flex justify-end gap-4 mt-auto">
-        <button 
+        <button
           onClick={closeModal}
           className="px-6 py-3 border-4 border-zinc-200 hover:border-zinc-900 text-zinc-900 font-bold uppercase transition-all"
         >
           Cancel
         </button>
-        <button 
+        <button
           onClick={handleCreate}
           disabled={loading}
           className="px-8 py-3 bg-pink-500 hover:bg-pink-600 disabled:bg-zinc-300 text-white font-bold border-4 border-zinc-900 hover:-translate-y-1 hover:shadow-[4px_4px_0px_rgba(24,24,27,1)] transition-all uppercase"

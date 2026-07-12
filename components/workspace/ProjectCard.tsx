@@ -10,14 +10,15 @@ import { ProjectPreview } from "../canvas/ProjectPreview";
 
 interface ProjectCardProps {
   project: Project;
+  onProjectDeleted?: (projectId: string) => void;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, onProjectDeleted }: ProjectCardProps) {
   const { openSheet } = useSheetStore();
 
   const handleEdit = (e: React.MouseEvent) => {
     e.preventDefault();
-    openSheet('edit-project', project);
+    openSheet('edit-project', { ...project, onProjectDeleted });
   };
 
   return (
@@ -31,7 +32,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             elements={project.canvas_state?.elements || []}
             width={project.width || 1920}
             height={project.height || 1080}
-            backgroundColor={project.canvas_state?.backgroundColor || "#ffffff"}
+            backgroundColor={project.canvas_state?.settings?.backgroundColor || "#ffffff"}
           />
         </div>
         {/* Hover overlay for open button */}

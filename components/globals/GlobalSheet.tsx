@@ -57,8 +57,12 @@ export default function GlobalSheet() {
         router.push('/workspaces') // Redirect to list if deleted
       } else if (type === 'edit-project') {
         await projectService.deleteProject(data.id)
+        // Optimistically remove from list — no page reload
+        data.onProjectDeleted?.(data.id)
       }
-      router.refresh()
+      if (type !== 'edit-project') {
+        router.refresh()
+      }
       closeSheet()
     } catch (err: any) {
       setError(err.message || 'An error occurred')

@@ -6,6 +6,7 @@ export { ShapeEditorSheet } from './ShapeEditorSheet';
 export { BackgroundEditorSheet } from './BackgroundEditorSheet';
 export { default as ExportModal } from './ExportModal';
 export { CanvasHydrator } from './CanvasHydrator';
+export { CanvasPageClient } from './CanvasPageClient';
 export { default as CanvasEditor } from './CanvasEditor';
 export { ElementRenderer } from "./ElementRenderer";
 export { ProjectPreview } from "./ProjectPreview";

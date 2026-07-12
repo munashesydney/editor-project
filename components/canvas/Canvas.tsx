@@ -7,7 +7,7 @@ import { DraggableElement } from "./CanvasElement";
 import { SelectionChrome } from "./SelectionChrome";
 import { FloatingToolbar } from "./FloatingToolbar";
 import { DesignSheet } from "../layout/DesignSheet";
-import { HelpCircle, ImageUp } from "lucide-react";
+import { ImageUp } from "lucide-react";
 import {
   useCanvasScale,
   useCanvasKeyboard,
@@ -162,17 +162,6 @@ export function Canvas() {
                 );
               })}
 
-              {!elements.length && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-400 pointer-events-none">
-                  <HelpCircle className="w-6 h-6 mb-2 text-zinc-300" />
-                  <p className="text-sm font-medium text-zinc-500">
-                    Nalario is empty
-                  </p>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    Use the toolbar or press T, R, I to add elements
-                  </p>
-                </div>
-              )}
             </div>
           </DesignSheet>
 

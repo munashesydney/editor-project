@@ -1,16 +1,17 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { LayoutTemplate, ArrowLeft } from "lucide-react";
 import { ProjectCard } from "@/components/workspace/ProjectCard";
 import { NewProjectButton } from "@/components/workspace/NewProjectButton";
 import { ProjectsPagination } from "@/components/workspace/ProjectsPagination";
-import { createClient } from "@/lib/supabase/server";
-
-export const dynamic = 'force-dynamic';
+import { createClient } from "@/lib/supabase/client";
+import { Project } from "@/lib/models/project.model";
 
 const PROJECTS_PER_PAGE = 11;
 
-export default async function WorkspaceHomePage({
+export default function WorkspaceHomePage({
   params,
   searchParams,
 }: {
@@ -19,41 +20,73 @@ export default async function WorkspaceHomePage({
 }) {
   const workspaceId = params.id;
   const currentPage = Math.max(1, parseInt(searchParams.page || "1", 10) || 1);
-  const supabase = createClient();
 
-  // Fetch workspace
-  const { data: workspace, error: wError } = await supabase
-    .from('workspaces')
-    .select('*')
-    .eq('id', workspaceId)
-    .single();
+  const [workspace, setWorkspace] = useState<{ id: string; name: string } | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch paginated projects with total count
-  const from = (currentPage - 1) * PROJECTS_PER_PAGE;
-  const to = from + PROJECTS_PER_PAGE - 1;
+  useEffect(() => {
+    const supabase = createClient();
 
-  const { data: projects, error: pError, count: totalCount } = await supabase
-    .from('projects')
-    .select('*', { count: 'exact' })
-    .eq('workspace_id', workspaceId)
-    .order('updated_at', { ascending: false })
-    .range(from, to);
+    async function fetchData() {
+      setLoading(true);
 
-  if (wError) console.error(wError);
-  if (pError) console.error(pError);
+      const { data: wData } = await supabase
+        .from("workspaces")
+        .select("id, name")
+        .eq("id", workspaceId)
+        .single();
+      setWorkspace(wData);
+
+      const from = (currentPage - 1) * PROJECTS_PER_PAGE;
+      const to = from + PROJECTS_PER_PAGE - 1;
+
+      const { data: pData, count } = await supabase
+        .from("projects")
+        .select("*", { count: "exact" })
+        .eq("workspace_id", workspaceId)
+        .order("updated_at", { ascending: false })
+        .range(from, to);
+
+      setProjects(pData || []);
+      setTotalCount(count || 0);
+      setLoading(false);
+    }
+
+    fetchData();
+  }, [workspaceId, currentPage]);
+
+  const handleProjectDeleted = (projectId: string) => {
+    setProjects((prev) => prev.filter((p) => p.id !== projectId));
+    setTotalCount((prev) => prev - 1);
+  };
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PROJECTS_PER_PAGE));
+
+  if (loading) {
+    return (
+      <div className="flex flex-col space-y-8 animate-in fade-in duration-500">
+        <div className="bg-white p-8 rounded-none border-2 border-zinc-200">
+          <div className="h-6 w-48 bg-zinc-100 animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-[240px] bg-zinc-100 border-2 border-zinc-200 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (!workspace) {
     return <div>Workspace not found.</div>;
   }
 
-  const totalPages = Math.max(1, Math.ceil((totalCount || 0) / PROJECTS_PER_PAGE));
-
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in duration-500">
-
       {/* Header */}
       <div className="bg-white p-8 rounded-none border-2 border-zinc-200 relative overflow-hidden">
-
         <div className="relative z-10 flex flex-col items-start md:flex-row md:items-center justify-between gap-4">
           <div>
             <Link
@@ -70,7 +103,7 @@ export default async function WorkspaceHomePage({
               <div>
                 <h1 className="text-3xl font-bold text-zinc-900">{workspace.name}</h1>
                 <p className="text-zinc-500 mt-1 flex items-center gap-2">
-                  <span className="flex items-center gap-1"><LayoutTemplate className="w-4 h-4" /> {totalCount || 0} Projects</span>
+                  <span className="flex items-center gap-1"><LayoutTemplate className="w-4 h-4" /> {totalCount} Projects</span>
                   <span className="w-1 h-1 rounded-full bg-zinc-300" />
                   <span>Team Workspace</span>
                 </p>
@@ -87,11 +120,14 @@ export default async function WorkspaceHomePage({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
           <NewProjectButton workspaceId={workspaceId} />
 
-          {projects?.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onProjectDeleted={handleProjectDeleted}
+            />
           ))}
         </div>
 
