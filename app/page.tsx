@@ -7,7 +7,7 @@ import { MousePointer2, Layers } from "lucide-react";
 export default function LandingPage() {
   return (
     <div className="h-screen w-full bg-white flex flex-col md:flex-row overflow-hidden font-sans relative">
-      
+
       {/* TOP NAVBAR */}
       <nav className="absolute top-0 left-0 right-0 z-50 p-6 md:p-10 flex items-center justify-between pointer-events-none">
         <div className="flex items-center gap-3 pointer-events-auto">
@@ -15,10 +15,10 @@ export default function LandingPage() {
             <Layers className="w-5 h-5 text-white" />
           </div>
           <span className="font-bold text-zinc-900 text-xl tracking-tight">
-            Canvas
+            Nalario
           </span>
         </div>
-        
+
         <div className="flex items-center gap-6 pointer-events-auto">
           <Link href="/login" className="font-bold text-zinc-900 hover:underline underline-offset-4 decoration-2 transition-all">
             Log In
@@ -32,7 +32,7 @@ export default function LandingPage() {
       {/* LEFT HALF - TYPOGRAPHY & CTA */}
       <div className="flex-1 flex flex-col justify-center p-12 md:p-24 relative z-10 bg-white">
 
-        <motion.h1 
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -42,8 +42,8 @@ export default function LandingPage() {
           WITHOUT <br />
           BOUNDARIES.
         </motion.h1>
-        
-        <motion.p 
+
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
@@ -51,13 +51,13 @@ export default function LandingPage() {
         >
           The AI-powered infinite canvas for teams that move fast. No rounded corners, no fluff. Just pure, unadulterated creativity.
         </motion.p>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Link 
+          <Link
             href="/workspaces"
             className="inline-flex items-center justify-center bg-pink-500 hover:bg-pink-600 text-white font-bold text-lg px-8 py-5 rounded-none border-2 border-transparent hover:border-zinc-900 hover:-translate-y-1 hover:shadow-[6px_6px_0px_rgba(24,24,27,1)] transition-all"
           >
@@ -68,9 +68,9 @@ export default function LandingPage() {
 
       {/* RIGHT HALF - ANIMATED GRAPHIC */}
       <div className="flex-1 bg-zinc-50 border-t-4 md:border-t-0 md:border-l-4 border-zinc-900 relative overflow-hidden flex items-center justify-center p-8 md:p-12">
-        
+
         {/* Background Grid */}
-        <div 
+        <div
           className="absolute inset-0 opacity-20 pointer-events-none"
           style={{
             backgroundImage: "radial-gradient(#18181b 2px, transparent 2px)",
@@ -79,7 +79,7 @@ export default function LandingPage() {
         />
 
         {/* The "Canvas" Window */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.3 }}
@@ -94,11 +94,11 @@ export default function LandingPage() {
 
           {/* Animated Elements inside Canvas */}
           <div className="relative flex-1 w-full h-full overflow-hidden">
-            
+
             {/* Shape 1: Black Square */}
-            <motion.div 
-              animate={{ 
-                x: [0, 40, 10, 0], 
+            <motion.div
+              animate={{
+                x: [0, 40, 10, 0],
                 y: [0, -20, 30, 0],
                 rotate: [0, 10, -5, 0]
               }}
@@ -107,9 +107,9 @@ export default function LandingPage() {
             />
 
             {/* Shape 2: Pink Accent */}
-            <motion.div 
-              animate={{ 
-                x: [0, -30, 20, 0], 
+            <motion.div
+              animate={{
+                x: [0, -30, 20, 0],
                 y: [0, 50, -10, 0],
                 rotate: [0, -15, 10, 0]
               }}
@@ -118,8 +118,8 @@ export default function LandingPage() {
             />
 
             {/* Shape 3: Outline Element */}
-            <motion.div 
-              animate={{ 
+            <motion.div
+              animate={{
                 scale: [1, 1.05, 1],
                 rotate: [0, 90, 0]
               }}
@@ -129,7 +129,7 @@ export default function LandingPage() {
 
             {/* Animated Cursor */}
             <motion.div
-              animate={{ 
+              animate={{
                 x: [0, 120, -40, 0],
                 y: [0, 40, 120, 0]
               }}

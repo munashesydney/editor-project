@@ -95,7 +95,7 @@ export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project"
             <div className="w-8 h-8 bg-zinc-900 flex items-center justify-center rounded-none">
               <Layers className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-zinc-900 text-lg tracking-tight group-hover:text-zinc-700 transition-colors uppercase">
+            <span className="font-bold text-zinc-900 text-lg tracking-tight group-hover:text-zinc-700 transition-colors">
               Nalario
             </span>
           </Link>
@@ -159,10 +159,10 @@ export function Navbar({ chatPanelOpen = false, projectName = "Untitled Project"
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        
+
         {/* Hidden file input for JSON import */}
-        <input 
-          type="file" 
+        <input
+          type="file"
           accept=".json,application/json"
           ref={fileInputRef}
           className="hidden"

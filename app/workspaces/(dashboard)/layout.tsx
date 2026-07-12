@@ -23,7 +23,7 @@ export default function WorkspacesLayout({
               <Layers className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-zinc-900 text-lg tracking-tight transition-colors">
-              Canvas
+              Nalario
             </span>
           </Link>
 
@@ -32,22 +32,10 @@ export default function WorkspacesLayout({
               href="/workspaces"
               className={cn(
                 "py-4 text-sm font-medium border-b-2 transition-colors",
-                pathname === "/workspaces" ? "border-zinc-900 text-zinc-900" : "border-transparent text-zinc-500 hover:text-zinc-900"
+                pathname.startsWith("/workspaces") ? "border-zinc-900 text-zinc-900" : "border-transparent text-zinc-500 hover:text-zinc-900"
               )}
             >
               Workspaces
-            </Link>
-            <Link
-              href="#"
-              className="py-4 text-sm font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-900 transition-colors"
-            >
-              Recent
-            </Link>
-            <Link
-              href="#"
-              className="py-4 text-sm font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-900 transition-colors"
-            >
-              Trash
             </Link>
           </nav>
         </div>
